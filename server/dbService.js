@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 const dotenv = require('dotenv');
-let instance = null;
 dotenv.config();
+
 
 const connection = mysql.createConnection({
     host: process.env.HOST,
@@ -18,97 +18,4 @@ connection.connect((err) => {
     console.log('db ' + connection.state);
 });
 
-
-class DbService {
-    static getDbServiceInstance() {
-        return instance ? instance : new DbService();
-    }
-
-    async getAllData() {
-        try {
-            const response = await new Promise((resolve, reject) => {
-                const query = "SELECT * FROM produit;";
-                connection.query(query, (err, results) => {
-                    if (err) reject(new Error(err.message));
-                    resolve(results);
-                })
-            });
-            // console.log(response);
-            return response;
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-
-    async insertNewProduit(nom, prix, stock) {
-        try {
-            await new Promise((resolve, reject) => {
-                const query = "INSERT INTO produit (nom_produit, prix, stock) VALUES (?,?,?);";
-                connection.query(query, [nom, prix, stock], (err, result) => {
-                    if (err) reject(new Error(err.message));
-                    resolve();
-                })
-            });
-            console.log('Produit Ajouté')
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    async deleteRowById(id) {
-        try {
-            id = parseInt(id, 10);
-            const response = await new Promise((resolve, reject) => {
-                const query = "DELETE FROM names WHERE id = ?";
-
-                connection.query(query, [id], (err, result) => {
-                    if (err) reject(new Error(err.message));
-                    resolve(result.affectedRows);
-                })
-            });
-
-            return response === 1 ? true : false;
-        } catch (error) {
-            console.log(error);
-            return false;
-        }
-    }
-
-    async updateNameById(id, name) {
-        try {
-            id = parseInt(id, 10);
-            const response = await new Promise((resolve, reject) => {
-                const query = "UPDATE names SET name = ? WHERE id = ?";
-
-                connection.query(query, [name, id], (err, result) => {
-                    if (err) reject(new Error(err.message));
-                    resolve(result.affectedRows);
-                })
-            });
-            return response === 1 ? true : false;
-        } catch (error) {
-            console.log(error);
-            return false;
-        }
-    }
-
-    async searchByName(name) {
-        try {
-            const response = await new Promise((resolve, reject) => {
-                const query = "SELECT * FROM names WHERE name = ?;";
-
-                connection.query(query, [name], (err, results) => {
-                    if (err) reject(new Error(err.message));
-                    resolve(results);
-                })
-            });
-
-            return response;
-        } catch (error) {
-            console.log(error);
-        }
-    }
-}
-
-module.exports = DbService;
+exports.connection = connection;
